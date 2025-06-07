@@ -1,0 +1,177 @@
+<div class="invoice-container">
+  <div class="header">
+    <svg class="logo" viewBox="0 0 400 150" xmlns="http://www.w3.org/2000/svg">
+      <!-- Círculos externos -->
+      <circle cx="75" cy="75" r="70" fill="none" stroke="white" stroke-width="4"/>
+      <circle cx="75" cy="75" r="60" fill="none" stroke="white" stroke-width="2"/>
+      
+      <!-- Letra O central -->
+      <circle cx="75" cy="75" r="35" fill="none" stroke="#ff8c00" stroke-width="8"/>
+      <circle cx="75" cy="75" r="20" fill="none" stroke="white" stroke-width="3"/>
+      
+      <!-- Texto Omni -->
+      <text x="160" y="65" font-family="Arial, sans-serif" font-size="45" font-weight="bold" fill="white">Omni</text>
+      
+      <!-- Texto Inovações -->
+      <text x="160" y="105" font-family="Arial, sans-serif" font-size="35" font-weight="normal" fill="white">Inovações</text>
+    </svg>
+    <h1>OMNI INOVAÇÕES SISTEMAS PERSONALIZADOS</h1>
+    <p>Desenvolvimento de Sistemas Personalizados | Jogos Digitais | Credenciamento Corporativo</p>
+  </div>
+  
+  <div class="content">
+    <div class="controls">
+      <div class="document-header">                    
+        <select id="titulo-documento" class="document-type-select" (change)="atualizarTipoDocumento()">
+          <option value="Fatura de Serviços" selected>Fatura de Serviços</option>
+          <option value="Orçamento">Orçamento</option>
+        </select>
+        <span class="document-number-label">Nº</span>
+        <input id="numero-fatura" class="document-number-input" [(ngModel)]="numeroFatura" placeholder="Número">
+        <button class="btn-gerar-numero" (click)="gerarNumeroFatura()" title="Gerar número automático">🎲</button>
+      </div>
+      <input type="file" #fileInput accept=".json" style="display: none;" (change)="carregarDadosJSON($event)">
+    </div>
+
+    <div class="invoice-info">
+      <div class="info-section">
+        <h3>PRESTADOR DE SERVIÇOS</h3>
+        <p><strong>Paulo Roberto Leocadio Veloso</strong></p>
+        <p>CNPJ: 32.564.153/0001-58</p>
+        <p>CPF: 01277125180</p>
+        <p>IM: 0789673400197</p>
+        <p>Quadra 18 Conjunto H 14</p>
+        <p>Paranoa - CEP 71571-808</p>
+        <p>Brasília/DF</p>
+        <p>Fone: (61) 99367-1241</p>
+        <p>Email: paulo.roberto&#64;omniinovacoes.com.br</p>
+      </div>
+      
+      <div class="info-section">
+        <h3>CLIENTE</h3>
+        <p><strong><input class="editable-field" [(ngModel)]="cliente.nome" style="width: 100%; font-weight: bold;"></strong></p>
+        <p>CNPJ: <input class="editable-field" [(ngModel)]="cliente.cnpj" style="width: 180px;"> 
+        <button class="btn-consultar-cnpj" (click)="consultarCNPJ()" title="Consultar dados na Receita Federal">🔍</button></p>
+        <p>IM: <input class="editable-field" [(ngModel)]="cliente.im"></p>
+        <p><input class="editable-field" [(ngModel)]="cliente.endereco" style="width: 100%;"></p>
+        <p><input class="editable-field" [(ngModel)]="cliente.bairro"> - CEP <input class="editable-field" [(ngModel)]="cliente.cep" style="width: 80px;"></p>
+        <p><input class="editable-field" [(ngModel)]="cliente.cidade">/<input class="editable-field" [(ngModel)]="cliente.uf" style="width: 30px;"></p>
+        <p>Email: <input class="editable-field" [(ngModel)]="cliente.email" style="width: 200px;"></p>
+      </div>
+    </div>
+    
+    <div class="invoice-details" [class.hide-nf]="isNotaFiscalHidden">
+      <div class="detail-box" id="nf-box" [style.display]="isNotaFiscalHidden ? 'none' : 'block'">
+        <strong>NOTA FISCAL Nº</strong>
+        <input [(ngModel)]="numeroNF" (input)="verificarNotaFiscal()">
+      </div>
+      <div class="detail-box">
+        <strong>DATA DE EMISSÃO</strong>
+        <input type="date" [(ngModel)]="dataEmissao">
+      </div>
+      <div class="detail-box">
+        <strong>VENCIMENTO</strong>
+        <input type="date" [(ngModel)]="dataVencimento">
+      </div>
+    </div>
+    
+    <!-- Seção de Prazo de Entrega (apenas para Orçamento) -->
+    <div id="prazo-entrega-section" [style.display]="tipoDocumento === 'Orçamento' ? 'block' : 'none'" style="margin-bottom: 30px;">
+      <div style="background: #fff3cd; padding: 20px; border-radius: 6px; border-left: 4px solid #ffc107;">
+        <h3 style="margin: 0 0 15px 0; color: #856404; font-size: 16px; font-weight: bold;">PRAZO DE ENTREGA</h3>
+        <div style="margin-bottom: 10px;">
+          <select [(ngModel)]="prazoEntrega" class="editable-field" style="width: 100px; padding: 6px; border: 1px solid #ddd; border-radius: 3px; background: white; font-size: 13px;">
+            <option value="1 dia útil">1 dia útil</option>
+            <option value="2 a 3 dias úteis">2 a 3 dias úteis</option>
+            <option value="3 a 5 dias úteis">3 a 5 dias úteis</option>
+            <option value="7 dias úteis">7 dias úteis</option>
+            <option value="15 dias corridos">15 dias corridos</option>
+            <option value="30 dias corridos">30 dias corridos</option>
+          </select>
+        </div>
+        <small style="color: #6c757d; font-size: 12px; font-style: italic;">
+          Após entrega de todo material necessário para desenvolvimento
+        </small>
+      </div>
+    </div>
+    
+    <button class="btn-add-service" (click)="adicionarServico()">➕ Adicionar Serviço</button>
+    
+    <table class="services-table" [class.hide-periodo]="tipoDocumento === 'Orçamento'">
+      <thead>
+        <tr>
+          <th>DESCRIÇÃO DOS SERVIÇOS</th>
+          <th class="periodo-column">PERÍODO</th>
+          <th style="text-align: right;">VALOR (R$)</th>
+          <th style="width: 60px;"></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let servico of servicos; let i = index">
+          <td><input class="editable-field" [(ngModel)]="servico.descricao" style="width: 100%;"></td>
+          <td class="periodo-column"><input class="editable-field" [(ngModel)]="servico.periodo" style="width: 100%;"></td>
+          <td>R$ <input class="editable-field valor" [(ngModel)]="servico.valor" style="text-align: right; width: calc(100% - 25px);" (ngModelChange)="calcularTotal()"></td>
+          <td><button class="btn-remove-service" (click)="removerServico(i)">❌</button></td>
+        </tr>
+      </tbody>
+    </table>
+    
+    <div class="total-section">
+      <h3>VALOR TOTAL: R$ {{ formatarValor(valorTotal) }}</h3>
+    </div>
+    
+    <div class="payment-info" [style.display]="tipoDocumento === 'Orçamento' ? 'none' : 'block'">
+      <h3>DADOS PARA PAGAMENTO</h3>
+      <div style="display: grid; grid-template-columns: 1fr auto; gap: 20px; align-items: start;">
+        <div>
+          <p><strong>Banco:</strong> 
+            <select class="editable-field" [(ngModel)]="pagamento.banco" style="width: 150px; padding: 3px; border: 1px solid #ddd; border-radius: 3px; background: white;">
+              <option value="Itaú">Itaú</option>
+              <option value="PagBank">PagBank</option>
+              <option value="Mercado Pago">Mercado Pago</option>
+              <option value="Santander">Santander</option>
+              <option value="Bradesco">Bradesco</option>
+              <option value="PicPay">PicPay</option>
+            </select>
+          </p>
+          <p><strong>Agência:</strong> <input class="editable-field" [(ngModel)]="pagamento.agencia" style="width: 100px;"></p>
+          <p><strong>Conta Corrente:</strong> <input class="editable-field" [(ngModel)]="pagamento.conta" style="width: 150px;"></p>
+          <p><strong><span>{{ pixLabel }}:</span></strong> <input class="editable-field" [(ngModel)]="pagamento.pixChave" style="width: 180px;" (input)="atualizarPIX()"></p>
+          <p><strong>Favorecido:</strong> <input class="editable-field" [(ngModel)]="pagamento.favorecido" style="width: 250px;"></p>
+        </div>
+        <div style="text-align: center;">
+          <div style="background: white; padding: 10px; border-radius: 8px; display: inline-block; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+            <canvas #qrcode style="display: block;"></canvas>
+            <img #qrcodeFallback style="display: none; width: 150px; height: 150px;" alt="QR Code PIX">
+          </div>
+          <p style="margin: 10px 0 0 0; font-size: 12px; color: #666;">Escaneie para pagar via PIX</p>
+          <p style="margin: 5px 0 0 0; font-size: 10px; color: #999;"><span [innerHTML]="pixDisplay"></span></p>
+          <button (click)="gerarPixSimples()" style="background: #27ae60; color: white; border: none; padding: 5px 10px; border-radius: 3px; font-size: 10px; margin-top: 5px; cursor: pointer;">PIX Simples</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Botões de Ação -->
+  <div class="action-buttons-container">
+    <div class="action-buttons">
+      <button class="btn-action btn-print" (click)="imprimir()">
+        <span class="btn-icon">🖨️</span>
+        <span class="btn-text">Imprimir</span>
+      </button>
+      <button class="btn-action btn-save" (click)="salvarDadosJSON()">
+        <span class="btn-icon">💾</span>
+        <span class="btn-text">Salvar JSON</span>
+      </button>
+      <button class="btn-action btn-load" (click)="fileInput.click()">
+        <span class="btn-icon">📁</span>
+        <span class="btn-text">Carregar JSON</span>
+      </button>
+    </div>
+  </div>
+  
+  <div class="footer">
+    <p>{{ footerText }}</p>
+    <p>Dúvidas ou esclarecimentos: paulo.roberto&#64;omniinovacoes.com.br | (61) 99367-1241</p>
+  </div>
+</div>
