@@ -292,8 +292,10 @@ export class FaturaComponent implements OnInit, AfterViewInit {
     payload += formatarCampo('60', cidade.substring(0, 15));
 
     // 62 - Additional Data Field Template (opcional)
-    const txId = 'FAT' + Date.now().toString().slice(-9);
-    let additionalData = formatarCampo('05', txId.substring(0, 25));
+    const txId = this.numeroFatura.trim();
+    const descricaoFatura = `${this.numeroFatura.trim()}`;
+    let additionalData = formatarCampo('05', txId.substring(0, 25)) + 
+                        formatarCampo('08', descricaoFatura.substring(0, 25));
     payload += formatarCampo('62', additionalData);
 
     // 63 - CRC16
